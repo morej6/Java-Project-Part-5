@@ -1,0 +1,51 @@
+package Moreno.bcs345.hwk.purchases.presentation;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Scanner;
+
+import Moreno.bcs345.hwk.purchases.business.Customer;
+import Moreno.bcs345.hwk.purchases.business.PurchaseCollection;
+
+/**
+ * Calls a instance of CustomerPurchaseConsoleUI to show menu
+ * 
+ * @author Juan Moreno
+ * @version 1.1
+ * @since 10/23/16
+ */
+public class Driver {
+
+	/**
+	 * Main is where the code is run.
+	 * @param args contains the command-line arguments
+	 */
+	public static void main(String[] args) {
+		//Declaring an instance of CustomerPurchaseConsoleUI
+		//CustomerPurchaseConsoleUI a = new CustomerPurchaseConsoleUI();
+		//a.ShowUI();	//Calling ShowUI which contains menu
+		System.out.print("Enter:");
+		Scanner s = new Scanner(System.in);
+		String infile = s.nextLine();
+		
+		//Try and catch block used for file handling
+		Scanner sc = null;	
+		try
+		{
+		
+		FileReader fr = new FileReader(infile);
+		sc = new Scanner(fr);
+		}
+		catch (FileNotFoundException e)
+		{
+			System.out.println("File not found");
+		}
+		
+		//PurchaseCollection a = new PurchaseCollection();
+		Customer a = new Customer();
+		a.Read(s);
+		System.out.print(a.toString());
+		
+	}
+
+}

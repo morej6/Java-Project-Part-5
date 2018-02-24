@@ -1,0 +1,504 @@
+package Moreno.bcs345.hwk.purchases.presentation;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.application.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.scene.control.ComboBox;
+import javafx.scene.input.KeyCombination;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintStream;
+import java.util.Scanner;
+
+import Moreno.bcs345.hwk.purchases.business.PurchaseCollection;
+
+public class PurchasesApplication extends Application {
+	
+	private  PurchaseCollection Purchase;
+	private ListView<String>list = new ListView<>();
+	ObservableList<String> items =FXCollections.observableArrayList (); 
+	
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		
+		primaryStage.setTitle("Purchases");	
+		primaryStage.setHeight(500);
+		primaryStage.setWidth(500);
+		primaryStage.show();
+	//	HBox hbox = new HBox();
+		
+		VBox vbox = new VBox();
+		MenuBar mainMenu = new MenuBar();  
+		TabPane tabPane = new TabPane();
+		Tab customerTab = new Tab();
+		Tab purchaseTab = new Tab();
+		
+		//Drop down Menu for File...Open..Save As etc
+		Menu dropDownFileMenu = new Menu("File");
+		MenuItem open = new MenuItem("Open...");
+		MenuItem save_As = new MenuItem("Save As...");
+		MenuItem save_Report = new MenuItem("Save Report...");
+		MenuItem exit = new MenuItem("Exit");
+		dropDownFileMenu.getItems().addAll(open, new SeparatorMenuItem(), save_As, save_Report, new SeparatorMenuItem(),  exit);
+		//Adds everything to one button ei file..open etc
+		mainMenu.getMenus().addAll(dropDownFileMenu);
+		
+		//Get Children
+		vbox.getChildren().add(mainMenu);
+		vbox.getChildren().add(tabPane);
+		//Tab text
+		customerTab.setText("Customer");
+		purchaseTab.setText("Purchase");
+		tabPane.getTabs().add(customerTab);
+		tabPane.getTabs().add(purchaseTab);
+		
+		GridPane grid = new GridPane();
+		grid.setPadding(new Insets(10,10,10,10));
+		grid.setVgap(10);
+		grid.setHgap(10);
+		
+		Label firstName = new Label("First name");
+		Label LastName = new Label("Last name");
+		Label number = new Label("Number");
+		Label street = new Label("Street");
+		Label city = new Label("City");
+		Label state = new Label("State");
+		Label zip = new Label("Zip");
+		
+		GridPane.setConstraints(firstName, 0,0);
+		GridPane.setConstraints(LastName, 0,2);
+		GridPane.setConstraints(number, 0,4);
+		GridPane.setConstraints(street, 0,6);
+		GridPane.setConstraints(city, 0,8);
+		GridPane.setConstraints(state, 0,10);
+		GridPane.setConstraints(zip, 0,12);
+		//Sets the labels to the customerTab only!!
+		customerTab.setContent(grid);
+		
+		TextField textFirst = new TextField();
+		TextField textLast = new TextField();
+		TextField textNumber = new TextField();
+		TextField textStreet = new TextField();
+		TextField textCity = new TextField();
+		TextField textState = new TextField();
+		TextField textZip = new TextField();
+		
+//		//PLACE INSIDE EVENT HABDLER TO POPULATE TEXT FIELD!!
+
+		
+		GridPane.setConstraints(textFirst,9,0);
+		GridPane.setConstraints(textLast,9,2);
+		GridPane.setConstraints(textNumber,9,4);
+		GridPane.setConstraints(textStreet,9,6);
+		GridPane.setConstraints(textCity,9,8);
+		GridPane.setConstraints(textState,9,10);
+		GridPane.setConstraints(textZip,9,12);
+		grid.getChildren().addAll(textFirst,textLast,textNumber, textStreet, textCity,textState,textZip,firstName,LastName,number,street,city,state,zip);
+
+		//Makes it so you can't exit out of the tabs
+		customerTab.setClosable(false);
+		purchaseTab.setClosable(false);
+		
+		list.setItems(items);
+	
+		
+		open.setOnAction( new EventHandler<ActionEvent>() {
+		      public void handle(ActionEvent t) {
+		    	  FileReader fr;
+		    	  String filename="";
+		    	  
+		    	  try{
+		    	 
+		    	  FileChooser filechooser = new FileChooser();
+		    	  filechooser.setTitle("Open file");
+		    	  File file = filechooser.showOpenDialog(primaryStage);
+		    	  
+		    	  
+		    	  if(file != null)
+		    	  {
+		    		  filename = file.getName();
+		    	  
+		    	  fr = new FileReader(filename);
+		    	  Scanner s = new Scanner(fr);
+		    	  Purchase = new PurchaseCollection();
+		    	  Purchase.Read(s);
+		    	  
+				  textFirst.setText(Purchase.GetCustomer().GetfirstName());
+		    	  textLast.setText(Purchase.GetCustomer().GetlastName());
+				  textNumber.setText(Purchase.GetCustomer().GetAddress().Getnumber());
+				  textStreet.setText(Purchase.GetCustomer().GetAddress().Getstreet());
+				  textCity.setText(Purchase.GetCustomer().GetAddress().Getcity());
+				  textState.setText(Purchase.GetCustomer().GetAddress().Getstate());
+				  textZip.setText(Purchase.GetCustomer().GetAddress().Getzip());
+				  
+				  for (int i =1; i <=Purchase.GetAraySize(); i++)
+				  {
+				  
+				  items.add(Integer.toString(Purchase.GetByIndex(i).Getquantity())+","+" "+Purchase.GetByIndex(i).GetProduct().GetDescription()+","+" "+"$"+ Purchase.GetByIndex(i).GetProduct().GetPrice());
+				  
+				  }
+				  
+	    	
+		    	  }
+		    	  }catch(Exception e){
+		    		  e.printStackTrace();
+		    	    
+		    	  }
+		    	  
+		  		  
+				
+				  
+		    	
+		      }
+		      
+		            
+		      }
+		   
+		);
+		open.setAccelerator(KeyCombination.keyCombination("Ctrl+o"));
+		purchaseTab.setContent(list);
+		//vbox.getChildren().add(list); //?????Not sure if is needed
+		
+		
+		save_As.setOnAction(new EventHandler<ActionEvent>(){
+			 public void handle(ActionEvent t) {
+		    	 try
+		    	 {
+		    		 
+		    	 
+				 FileChooser filechooser = new FileChooser();
+		    	 filechooser.setTitle("Save file");
+		    	 File file = filechooser.showSaveDialog(primaryStage);
+		    	 if(file != null)
+		    	  {
+			    	  PrintStream ps = null;
+			    	  ps = new PrintStream(file);
+			    	  Purchase.Write(ps);
+		    	  }
+		    	 
+		    	 
+		    	 }catch(Exception e)
+		    	 {
+		    		 
+		    	 }
+				 
+				 
+			}
+		}
+		
+	    );
+		save_As.setAccelerator(KeyCombination.keyCombination("Ctrl+s"));
+
+		
+		
+		save_Report.setOnAction(new EventHandler<ActionEvent>(){
+			 public void handle(ActionEvent t) {
+		    	 try
+		    	 {
+		    		 
+		    	 
+				 FileChooser filechooser = new FileChooser();
+		    	 filechooser.setTitle("Save file");
+		    	 File file = filechooser.showSaveDialog(primaryStage);
+		    	 if(file != null)
+		    	  {
+			    	  PrintStream ps = null;
+			    	  ps = new PrintStream(file);
+			    	  Purchase.Report(ps);
+		    	  }
+		    	 
+		    	 
+		    	 }catch(Exception e)
+		    	 {
+		    		 
+		    	 }
+				 
+				 
+			}
+		}
+		
+	    );
+		
+		exit.setOnAction(new EventHandler<ActionEvent>(){
+			 public void handle(ActionEvent t) {
+				 System.exit(0);
+			}
+		}
+		
+	    );
+		exit.setAccelerator(KeyCombination.keyCombination("Ctrl+x"));
+		
+	
+		
+		
+		
+		
+		Scene scene = new Scene(vbox);
+		// Put the scene in the stage
+		primaryStage.setScene(scene);
+		// Show the stage
+		primaryStage.show();
+		
+	}
+	
+}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/*
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+	  
+		
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		TabPane tabPane = new TabPane();
+		Tab summaryTab = new Tab();
+		Tab summaryTab2 = new Tab();
+		VBox summaryVBox = new VBox();
+
+		MenuBar menuBar = new MenuBar();
+		menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+		Menu fileMenu = new Menu("File");
+		menuBar.getMenus().add(fileMenu);
+		hbox.getChildren().add(menuBar);
+		MenuItem saveMenuItem = new MenuItem("Save");
+
+		saveMenuItem.setOnAction( new EventHandler<ActionEvent>() {
+		      public void handle(ActionEvent t) {
+		            System.out.println("Save menu item selected.");
+		      }
+		   }
+		);
+		
+
+		HBox message = new HBox();
+		summaryTab.setText("Message");
+		summaryTab2.setText("Input Data");
+		// Setup the labels and add to the VBox
+		Label totalLabel = new Label("Total = 30");
+		Label averageLabel = new Label("Average = 10");
+		summaryVBox.getChildren().add(totalLabel);
+		summaryVBox.getChildren().add(averageLabel);
+		// Set the VBox as the root of the summary tab
+		//summaryTab.setContent(summaryVBox);
+		
+		
+		message.getChildren().add(summaryVBox);
+	// Add the summary tab to the tab pane
+		tabPane.getTabs().add(summaryTab);
+		tabPane.getTabs().add(summaryTab2);
+		summaryTab.setContent(summaryVBox); // Makes it so total and average appear on screen
+		summaryTab.setClosable(false); //Makes it so you can't exit out of the tabs
+		summaryTab2.setClosable(false);
+		//Scene scene = new Scene(tabPane, 500, 300);
+		//primaryStage.setScene(scene);
+
+		
+		
+		
+		
+		
+		Scene scene = new Scene(hbox);
+		// Put the scene in the stage
+		primaryStage.setScene(scene);
+		// Show the stage
+		primaryStage.show();
+	}
+
+}
+
+*/
+
+/*
+
+private Button yellowbutton; 	
+private Button redbutton; 	
+private Button greenbutton; 	
+private ComboBox<String> colorComboBox;
+
+public void start(Stage primaryStage) {
+	primaryStage.setTitle("Lab – JavaFX Buttons");	
+	primaryStage.setHeight(500);
+	primaryStage.setWidth(500);
+	primaryStage.show();
+	
+	VBox vbox = new VBox();
+	yellowbutton = new Button();
+	redbutton = new Button();
+	greenbutton = new Button();
+	
+	colorComboBox = new ComboBox<String>();
+	
+
+	colorComboBox.getItems().add("Yellow");  	// Add item
+	colorComboBox.getItems().add("Red");	// Add item
+	colorComboBox.getItems().add("Green");	// Add item
+
+	
+	
+	yellowbutton.setText("Yellow");
+	redbutton.setText("Red");
+	greenbutton.setText("Green");
+	
+	vbox.getChildren().add(yellowbutton);
+	vbox.getChildren().add(redbutton);
+	vbox.getChildren().add(greenbutton);
+	vbox.getChildren().add(colorComboBox);
+	
+	yellowbutton.setOnAction(new EventHandler<ActionEvent>()
+	{ 
+@Override public void handle(ActionEvent e) 
+{
+	vbox.setStyle("-fx-background-color: #FFFF00;");  // Yellow – RGB code defines the color
+} 
+	}
+); 
+	
+	redbutton.setOnAction(new EventHandler<ActionEvent>()
+	{ 
+@Override public void handle(ActionEvent e) 
+{
+	vbox.setStyle("-fx-background-color: #FF0000;");  // Red – RGB code defines the color
+} 
+	}
+); 
+	
+	greenbutton.setOnAction(new EventHandler<ActionEvent>()
+	{ 
+@Override public void handle(ActionEvent e) 
+{
+	vbox.setStyle("-fx-background-color: #00FF00;");  // Green – RGB code defines the color
+} 
+	}
+); 
+	
+	colorComboBox.setOnAction(new EventHandler<ActionEvent>() 
+	{
+		   @Override
+		   public void handle(ActionEvent event)
+		   {
+		       String selectedItem = colorComboBox.getSelectionModel().getSelectedItem();
+		       if (selectedItem.equals("Yellow"))  {
+		    	   vbox.setStyle("-fx-background-color: #FFFF00;");  // Yellow – RGB code defines the color
+		       }
+		       if (selectedItem.equals("Red")) {
+		    	   vbox.setStyle("-fx-background-color: #FF0000;");  // Red – RGB code defines the color
+		       }
+		   
+		       if (selectedItem.equals("Green")) {
+		    	   vbox.setStyle("-fx-background-color: #00FF00;");  // Green – RGB code defines the color
+		       }
+		   
+		   }
+	}
+	);
+	
+	Scene scene = new Scene(vbox, 500, 500);
+	// Put the scene in the stage
+	primaryStage.setScene(scene);
+	// Show the stage
+	primaryStage.show();
+
+	
+}
+
+
+
+//if it returna  file , open a scanner
+
+}
+*/
